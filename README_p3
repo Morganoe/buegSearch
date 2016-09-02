@@ -1,0 +1,106 @@
+Morgan Eckenroth
+Phase 3 writeup
+3/9/16 (edited 3/20/16)
+
+Instructions
+------------
+Start the server using the command:
+
+	./search_server [port]
+
+If no port is given the program defaults to port 80.  During testing
+this proved to be ineffective due to port 80 being locked to the
+server's type of traffic so use port 80 with caution.
+
+Once the server is running, it can be accessed using any web browser
+with the url:
+
+	host:port
+
+where "host" is the name of the host the program is running on and
+port is the port that it has been bound to.
+
+The web_client.py is no longer used, but was left in for testing
+purposes.  It is a fully functional http client that can grab web
+data, parse out links, and perform other testable operations upon the
+html data received from a GET request.
+If you would want to use it:
+
+	./web_client.py <host> <path> [port]
+
+is the command to run it.  It will default to port 80 is not port is
+specified, but be warned that port 80 often blocks this kind of
+traffic on the Bucknell servers.
+
+
+Description
+-----------
+During this phase I brought forward much of the materials needed to
+complete the project, including a full frontend and file-parsing
+logic that was integral to this phase (non of which needed modified).
+
+Most of what needed implemented I had done during the second phase
+without realizing that was going to be a crutial part to the third
+phase.
+
+The program itself displays as a simple frontend website that has
+only a search bar and query button.  When entered, the server
+receives the POST request and starts parsing through websites
+beginning with a short list of bucknell computer science websites
+that were proveded on the phase 3 webpage.  From this starting list,
+the server checks if the webpages are in the page cache, if so grab
+that data, else poll from the internet and put it in the cache.  It
+then parses throught the html and extracts the links and words.  It
+queues up the links and checks for phrasal and single word matches,
+returing a webpage to the client of all of the matches that it finds.
+
+The server is capped to only check the first 150 webpages that it
+finds avaliable, this can be simply modified.  It is capable of
+parsing through any plain text file including: html, xml, txt, pdf,
+or typeless files; while also cache both the pdf and text converted
+versions of any found pdf files (a simple speed optimization).  It is
+also currently limited to the "www.eg.bucknell.edu" host, to reduce
+the chance of it escaping too far into the internet and causing linux
+server congestion.
+
+The server is also capable of detecting server errors and returns a
+proper 500 internal error in the case that a problem is detected, all
+without crashing itself. The error page itself is a spoof that
+allows for automatic redirecting to the main search page so that
+the user should not have to manually return to the main front
+page.  The server uses an extended unicode character table to handle 
+nearly if not any character combination without issue.
+
+The crawler creates a log file of the previous search attempt
+using the pattern: 
+
+* # pages visited 
+* queue of pages to visit
+* list of pages visited 
+* the index segmented by keyword
+
+Using this pattern the crawler is able to incrementally rebuild its
+progress and can use this to rebuild itself in case of a network
+hiccup. This log gets overwritten after each new search is made.
+
+
+Challenges
+----------
+Overall, the way that I had structured the program during the first
+two phases led to this phase being fairly easy to implement.  The
+main troubles that I had were:
+
+1. Divising a scheme for storing and retrieving webpage data in
+cached format to improve performance.
+
+2. Learning how to best handle incoming pdf data and how it is
+primarily encoded.
+
+3. Handling network uncertainties which included:
+	* Http port requests not having any input attached to it,
+	  making the server crash (only on occasion).
+	* Incomplete or corrupted data coming from Http GET requests
+	  (also only on occasion).
+
+Overall, however, I ran into only these few problems during this
+phase and all were fairly simple to fix or figure out.
